@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SETTLE - Payment Savings Calculator</title>
+    
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        /* ===== CONTAINER ===== */
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #1a1a1a;
+            font-size: 32px;
+            margin-bottom: 12px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* ===== FORM SECTION ===== */
+        .form-section {
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background-color: #fff;
+            color: #333;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #2196F3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+            background-color: #fafbfc;
+        }
+
+        .form-group select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 40px;
+        }
+
+        /* ===== CHECKBOXES ===== */
+        .checkboxes {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .checkbox-item:hover {
+            border-color: #2196F3;
+            background-color: #fafbfc;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 10px;
+            cursor: pointer;
+            accent-color: #2196F3;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            font-weight: 400;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+        }
+
+        /* ===== BUTTONS (FORM) ===== */
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .calculate-btn,
+        .reset-btn {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .calculate-btn {
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+
+        .calculate-btn:hover {
+            background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(33, 150, 243, 0.4);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        .reset-btn {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .reset-btn:hover {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        /* ===== RESULTS SECTION ===== */
+        .results {
+            display: none;
+            margin-top: 40px;
+            padding-top: 40px;
+            border-top: 2px solid #f0f0f0;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .results-header h2 {
+            color: #1a1a1a;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        /* ===== LEAKAGE BOX (RED) ===== */
+        .leakage-box {
+            background: #ffebee;
+            border-left: 4px solid #d32f2f;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .leakage-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .leakage-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .leakage-value {
+            color: #d32f2f;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        /* ===== TOTAL LEAKAGE (BIG RED BOX) ===== */
+        .total-leakage {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+            color: white;
+            padding: 24px 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(211, 47, 47, 0.3);
+        }
+
+        .total-leakage span:first-child {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .total-leakage-value {
+            font-size: 32px;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        /* ===== SAVINGS BOX (GREEN) ===== */
+        .savings-box {
+            background: #e8f5e9;
+            border-left: 4px solid #2e7d32;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            margin-bottom: 16px;
+        }
+
+        .savings-box-title {
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: #2e7d32;
+        }
+
+        .savings-value {
+            color: #2e7d32;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        /* ===== NET SAVINGS (BIG GREEN BOX) ===== */
+        .net-savings {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+            color: white;
+            padding: 24px 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+        }
+
+        .net-savings span:first-child {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .net-savings-value {
+            font-size: 32px;
+            font-weight: 700;
+            text-align: right;
+        }
+
+        /* ===== ROI SECTION ===== */
+        .roi-section {
+            background: linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%);
+            padding: 24px 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 24px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .roi-label {
+            color: #666;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .roi-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1976D2;
+            margin-bottom: 8px;
+        }
+
+        .roi-description {
+            color: #888;
+            margin: 0;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* ===== CTA BUTTON (DEMO) ===== */
+        .cta-button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
+            color: white;
+            margin-top: 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+
+        .cta-button:hover {
+            background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(33, 150, 243, 0.4);
+        }
+
+        .cta-button:active {
+            transform: translateY(0);
+        }
+
+        /* ===== DISCLAIMER ===== */
+        .disclaimer {
+            text-align: center;
+            margin-top: 30px;
+            color: #999;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        /* ===== MOBILE RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .container {
+                padding: 24px;
+                border-radius: 12px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+                margin-bottom: 8px;
+            }
+
+            .header p {
+                font-size: 13px;
+            }
+
+            .checkboxes {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .calculate-btn,
+            .reset-btn {
+                width: 100%;
+            }
+
+            .total-leakage,
+            .net-savings {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+
+            .total-leakage-value,
+            .net-savings-value {
+                font-size: 28px;
+                width: 100%;
+                text-align: right;
+            }
+
+            .roi-value {
+                font-size: 32px;
+            }
+
+            .cta-button {
+                padding: 14px;
+                font-size: 15px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .container {
+                padding: 16px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .form-group input,
+            .form-group select {
+                padding: 12px;
+                font-size: 16px;
+            }
+
+            .total-leakage-value,
+            .net-savings-value {
+                font-size: 24px;
+            }
+
+            .roi-value {
+                font-size: 28px;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container">
+        
+        <!-- ===== HEADER ===== -->
+        <div class="header">
+            <h1>💰 SETTLE</h1>
+            <p>Discover your hidden payment costs</p>
+        </div>
+
+        <!-- ===== FORM ===== -->
+        <form id="calculatorForm">
+            <div class="form-section">
+
+                <!-- INPUT 1: Monthly Volume -->
+                <div class="form-group">
+                    <label for="monthlyVolume">1. Monthly Transaction Volume (HKD)</label>
+                    <select id="monthlyVolume" required>
+                        <option value="">-- Select volume --</option>
+                        <option value="100000">HKD 100k</option>
+                        <option value="250000">HKD 250k</option>
+                        <option value="500000">HKD 500k</option>
+                        <option value="750000">HKD 750k</option>
+                        <option value="1000000">HKD 1M+</option>
+                    </select>
+                </div>
+
+                <!-- INPUT 2: Payment Processors -->
+                <div class="form-group">
+                    <label>2. Which payment processors do you use?</label>
+                    <div class="checkboxes">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="stripe" name="processor" value="stripe">
+                            <label for="stripe">Stripe</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="paypal" name="processor" value="paypal">
+                            <label for="paypal">PayPal</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="airwallex" name="processor" value="airwallex">
+                            <label for="airwallex">Airwallex</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="hitpay" name="processor" value="hitpay">
+                            <label for="hitpay">HitPay</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INPUT 3: Chargeback Rate -->
+                <div class="form-group">
+                    <label for="chargebackRate">3. Average Chargeback Rate</label>
+                    <select id="chargebackRate" required>
+                        <option value="">-- Select rate --</option>
+                        <option value="0.01">0-2% (Low)</option>
+                        <option value="0.035">2-5% (Medium)</option>
+                        <option value="0.06">5%+ (High)</option>
+                    </select>
+                </div>
+
+                <!-- INPUT 4: Settlement Days -->
+                <div class="form-group">
+                    <label for="settlementDays">4. Current Settlement Days</label>
+                    <select id="settlementDays" required>
+                        <option value="">-- Select days --</option>
+                        <option value="1.5">1-2 days (Fast)</option>
+                        <option value="3.5">3-4 days (Medium)</option>
+                        <option value="6">5-7 days (Slow)</option>
+                    </select>
+                </div>
+
+                <!-- INPUT 5: Email -->
+                <div class="form-group">
+                    <label for="email">5. Email for Results (Optional)</label>
+                    <input type="email" id="email" placeholder="your@email.com">
+                </div>
+
+                <!-- BUTTONS -->
+                <div class="button-group">
+                    <button type="button" class="calculate-btn" onclick="calculateResults()">Calculate My Loss</button>
+                    <button type="reset" class="reset-btn">Clear</button>
+                </div>
+
+            </div>
+        </form>
+
+        <!-- ===== RESULTS SECTION (HIDDEN UNTIL CALCULATE) ===== -->
+        <div id="results" class="results">
+
+            <!-- Results Header -->
+            <div class="results-header">
+                <h2>💔 Your Annual Payment Leakage</h2>
+            </div>
+
+            <!-- Red Box: Breakdown of Leakage -->
+            <div class="leakage-box">
+                <div class="leakage-item">
+                    <span>Processing Fees (3.9%)</span>
+                    <span class="leakage-value" id="feeLeakage">HKD 0</span>
+                </div>
+                <div class="leakage-item">
+                    <span>Chargebacks (Average)</span>
+                    <span class="leakage-value" id="chargebackLeakage">HKD 0</span>
+                </div>
+                <div class="leakage-item">
+                    <span>Settlement Delays (Working Capital)</span>
+                    <span class="leakage-value" id="settlementLeakage">HKD 0</span>
+                </div>
+            </div>
+
+            <!-- BIG RED BOX: Total Leakage -->
+            <div class="total-leakage">
+                <span>🔴 Total Annual Leakage</span>
+                <span class="total-leakage-value" id="totalLeakage">HKD 0</span>
+            </div>
+
+            <!-- Green Box: With SETTLE -->
+            <div class="savings-box">
+                <div class="savings-box-title">✅ With SETTLE (Optimized)</div>
+                <div class="leakage-item">
+                    <span>Optimized Fee Rate (2.1%)</span>
+                    <span class="savings-value" id="newFees">HKD 0</span>
+                </div>
+                <div class="leakage-item">
+                    <span>Chargebacks Reduced (-40%)</span>
+                    <span class="savings-value" id="newChargebacks">HKD 0</span>
+                </div>
+                <div class="leakage-item">
+                    <span>1-Day Settlement</span>
+                    <span class="savings-value" id="newSettlement">HKD 0</span>
+                </div>
+            </div>
+
+            <!-- BIG GREEN BOX: Net Savings -->
+            <div class="net-savings">
+                <span>💚 Annual Savings with SETTLE</span>
+                <span class="net-savings-value" id="netSavings">HKD 0</span>
+            </div>
+
+            <!-- ROI Section -->
+            <div class="roi-section">
+                <div class="roi-label">SETTLE Annual Cost: HKD 18,000</div>
+                <div class="roi-value" id="roi">0x ROI</div>
+                <p class="roi-description">Return on your investment</p>
+            </div>
+
+            <!-- CTA Button: Book Demo -->
+            <button class="cta-button" onclick="scheduleDemo()">Book 15-Min Demo</button>
+
+            <!-- Disclaimer -->
+            <div class="disclaimer">
+                <p>Based on 2026 average HK e-commerce payment processing rates. Actual savings may vary.</p>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // Main calculation function
+        function calculateResults() {
+            // Get form values
+            const monthlyVolume = parseFloat(document.getElementById('monthlyVolume').value);
+            const chargebackRate = parseFloat(document.getElementById('chargebackRate').value);
+            const settlementDays = parseFloat(document.getElementById('settlementDays').value);
+
+            // Validation
+            if (!monthlyVolume || chargebackRate === undefined || chargebackRate === '' || !settlementDays) {
+                alert('Please fill in all required fields (1, 3, and 4)');
+                return;
+            }
+
+            // ===== CONSTANTS =====
+            const currentFeeRate = 0.039;           // 3.9% current processor rate
+            const opportunityCostRate = 0.03;       // 3% annual opportunity cost
+            const optimizedFeeRate = 0.021;         // 2.1% with SETTLE
+            const optimizedChargebackReduction = 0.6; // 40% reduction (60% of original)
+            const optimizedSettlementDays = 1;      // 1-day settlement with SETTLE
+            const settleCost = 18000;               // HKD 18,000/year
+
+            // ===== CURRENT STATE CALCULATIONS =====
+            const feeLeakage = (monthlyVolume * currentFeeRate) * 12;
+            const chargebackLeakage = (monthlyVolume * chargebackRate) * 12;
+            const settlementLeakage = (settlementDays * monthlyVolume * opportunityCostRate) / 365 * 12;
+            const totalLeakage = feeLeakage + chargebackLeakage + settlementLeakage;
+
+            // ===== WITH SETTLE CALCULATIONS =====
+            const newFees = (monthlyVolume * optimizedFeeRate) * 12;
+            const newChargebacks = (monthlyVolume * chargebackRate * optimizedChargebackReduction) * 12;
+            const newSettlement = (optimizedSettlementDays * monthlyVolume * opportunityCostRate) / 365 * 12;
+            const totalNewCost = newFees + newChargebacks + newSettlement;
+
+            // ===== SAVINGS CALCULATIONS =====
+            const totalSavings = totalLeakage - totalNewCost;
+            const netSavings = totalSavings - settleCost;
+            const roi = (netSavings / settleCost).toFixed(1);
+
+            // ===== UPDATE DOM =====
+            // Red leakage details
+            document.getElementById('feeLeakage').textContent = 
+                'HKD ' + feeLeakage.toLocaleString('en-HK', {maximumFractionDigits: 0});
+            document.getElementById('chargebackLeakage').textContent = 
+                'HKD ' + chargebackLeakage.toLocaleString('en-HK', {maximumFractionDigits: 0});
+            document.getElementById('settlementLeakage').textContent = 
+                'HKD ' + settlementLeakage.toLocaleString('en-HK', {maximumFractionDigits: 0});
+            document.getElementById('totalLeakage').textContent = 
+                'HKD ' + totalLeakage.toLocaleString('en-HK', {maximumFractionDigits: 0});
+
+            // Green savings details
+            document.getElementById('newFees').textContent = 
+                'HKD ' + newFees.toLocaleString('en-HK', {maximumFractionDigits: 0});
+            document.getElementById('newChargebacks').textContent = 
+                'HKD ' + newChargebacks.toLocaleString('en-HK', {maximumFractionDigits: 0});
+            document.getElementById('newSettlement').textContent = 
+                'HKD ' + newSettlement.toLocaleString('en-HK', {maximumFractionDigits: 0});
+            document.getElementById('netSavings').textContent = 
+                'HKD ' + netSavings.toLocaleString('en-HK', {maximumFractionDigits: 0});
+            document.getElementById('roi').textContent = roi + 'x ROI';
+
+            // Show results section
+            document.getElementById('results').classList.add('show');
+
+            // Scroll to results on mobile
+            setTimeout(() => {
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        }
+
+        // Demo booking function
+        function scheduleDemo() {
+            const email = document.getElementById('email').value;
+            const calendarUrl = 'https://calendly.com/settle-hk/demo';
+            
+            // If email provided, add as pre-fill (optional)
+            if (email) {
+                window.open(calendarUrl + '?email=' + encodeURIComponent(email), '_blank');
+            } else {
+                window.open(calendarUrl, '_blank');
+            }
+        }
+
+        // Allow Enter key to trigger calculation
+        document.getElementById('calculatorForm').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                calculateResults();
+            }
+        });
+
+        // Hide results when form is reset
+        document.getElementById('calculatorForm').addEventListener('reset', function() {
+            document.getElementById('results').classList.remove('show');
+            setTimeout(() => {
+                document.getElementById('results').style.display = 'none';
+            }, 300);
+        });
+    </script>
+
+</body>
+
+</html>
